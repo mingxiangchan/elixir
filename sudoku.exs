@@ -39,7 +39,6 @@ defmodule Sudoku do
   end
 
   def solve_board(board,zeros, zero_index) do
-    IO.puts zero_index
     current_index = elem(zeros, zero_index) 
     current_value = Enum.at(board, current_index) |> String.to_integer
     new_value = next_valid(board, current_index, current_value)
