@@ -1,0 +1,2 @@
+defmodule WeatherChecker do
+end
