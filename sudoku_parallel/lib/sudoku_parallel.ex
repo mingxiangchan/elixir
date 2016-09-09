@@ -22,7 +22,10 @@ defmodule SudokuParallel do
 
   def find_potential_solutions(%Board{cells: cells, zero_indexes: zero_indexes }) do
     board = %Board{cells: cells, zero_indexes: zero_indexes }
-    coordinator_pid = spawn(SudokuParallel.Coordinator, :loop, [self, [], tuple_size(zero_indexes)])
+    potential_solutions = zero_indexes 
+                            |> Tuple.to_list 
+                            |> Enum.reduce(%{}, fn(x, acc) -> Map.put(acc, x, [])  end)
+    coordinator_pid = spawn(SudokuParallel.Coordinator, :loop, [self,  potential_solutions, %{}])
 
     zero_indexes
       |> Tuple.to_list
@@ -30,6 +33,17 @@ defmodule SudokuParallel do
         worker_pid = spawn(SudokuParallel.Worker, :loop, [])
         send worker_pid, {coordinator_pid, board, zero_index}
       end)
-    IEx.pry
+
+    wait_for_results(board)
+  end
+
+  def wait_for_results(board) do
+    receive do
+      {:ok, results} ->
+        IEx.pry
+      _ ->
+        IO.puts "Something went wrong"
+    end
+    wait_for_results(board)
   end
 end
